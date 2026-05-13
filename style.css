@@ -1,1 +1,26 @@
-path { stroke-width: 0.5px; stroke: #ccc; }
+/* Configuração Geral do Mapa */
+path { 
+    stroke-width: 0.5px; 
+    stroke: #ccc; /* Borda fina cinza */
+    transition: fill 0.3s ease;
+}
+
+/* Modo Claro Invertido (O que você pediu) */
+body.light-mode {
+    background-color: #050505; /* Mar Negro */
+}
+
+body.light-mode path {
+    fill: #FFFFFF; /* Países Brancos */
+}
+
+/* Estilo para Países Visitados */
+path.visited {
+    fill: #C8A850 !important; /* Dourado fixo */
+}
+
+/* Ajuste do Título TRAVELING */
+.logo .travel {
+    color: #C8A850; /* TRAVEL Dourado */
+    font-weight: bold;
+}
