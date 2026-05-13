@@ -402,12 +402,17 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .tt-fl{font-size:.82rem;}
 #hint{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);font-size:.36rem;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;pointer-events:none;opacity:0;animation:fIn 1s ease 2.8s forwards;white-space:nowrap;}
 </style>
-</head>
-  <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css"> </head> <body> <script src="script.js"></script> <div id="loading">
+        ```
+
+### 2. Ajuste no Logo (TRAVELING)
+Para que a palavra **TRAVEL** fique dourada como pediu, altere a linha 414 para:
+```html
+<button id="logo" onclick="homeReset()">
+    <span class="travel">TRAVEL</span>ING
+</button>
   
-<body> 
-  <script src="script.js"></script>
-  
+ 
 <div id="loading"><div class="ld-mark">TRAVELING</div><div class="ld-sub">Explore o mundo com inteligência</div><div class="ld-bar"></div></div>
 
 <header id="topbar">
