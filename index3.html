@@ -1183,3 +1183,310 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+bash
+
+cat > /tmp/write_index.py << 'PYEOF'
+index_html = '''<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRAVELING — Explore o Mundo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+</head>
+<body>
+
+<!-- ══ LOADING ═══════════════════════════════════════════════ -->
+<div id="loading">
+  <div class="ld-mark">TRAVELING</div>
+  <div class="ld-sub">Explore o mundo com inteligência</div>
+  <div class="ld-bar"></div>
+</div>
+
+<!-- ══ TOPBAR ════════════════════════════════════════════════ -->
+<header id="topbar">
+  <button id="logo"><span class="travel">TRAVEL</span>ING</button>
+  <div id="tr">
+    <div id="ctr-badge" title="Países visitados">
+      🌍
+      <span class="ctr-label">Explorador:</span>
+      <span class="ctr-n" id="ctr-n">0</span>
+      <span class="ctr-total">/193</span>
+    </div>
+    <button class="tb-btn hidden" id="reset-btn">⊕ Mundo</button>
+    <button id="theme-btn" aria-label="Alternar tema">🌙</button>
+    <div id="sw">
+      <input id="si" type="search" placeholder="Buscar país..." autocomplete="off" spellcheck="false" aria-label="Buscar país">
+      <span class="si-ico" aria-hidden="true">⌕</span>
+      <div id="sug" role="listbox"></div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ BREADCRUMB ════════════════════════════════════════════ -->
+<nav id="bc" aria-label="Localização">
+  <div class="bc-seg">
+    <button class="bc-btn" id="bc-home">Mundo</button>
+  </div>
+  <div class="bc-seg" id="bc-cont-seg" style="display:none">
+    <span class="bc-sep">›</span>
+    <button class="bc-btn" id="bc-cont-btn"></button>
+  </div>
+  <div class="bc-seg" id="bc-ctry-seg" style="display:none">
+    <span class="bc-sep">›</span>
+    <span class="bc-btn bc-cur" id="bc-ctry-lbl"></span>
+  </div>
+</nav>
+
+<!-- Nav history dots -->
+<div id="nav-history" aria-hidden="true"></div>
+
+<!-- ══ MAP ════════════════════════════════════════════════════ -->
+<div id="map-wrap">
+  <svg id="map-svg" aria-label="Mapa mundi interativo" role="img"></svg>
+</div>
+
+<!-- ══ MILES HUB ══════════════════════════════════════════════ -->
+<button id="miles-tab" aria-expanded="false" aria-controls="miles-hub">
+  <span>Milhas &amp; Cartões</span>
+</button>
+
+<aside id="miles-hub" aria-label="Hub de Milhas e Cartões">
+  <div id="mh-head">
+    <div class="mh-title-row">
+      <div class="mh-title">Hub de Milhas &amp; Cartões</div>
+      <button class="mh-x" id="mh-close" aria-label="Fechar">✕</button>
+    </div>
+    <div id="mh-tabs" role="tablist">
+      <div class="mh-tab on" role="tab" data-mh="0">💳 Cartões</div>
+      <div class="mh-tab" role="tab" data-mh="1">🎯 Estratégias</div>
+      <div class="mh-tab" role="tab" data-mh="2">✈️ Resgates</div>
+      <div class="mh-tab" role="tab" data-mh="3">📖 Glossário</div>
+    </div>
+  </div>
+  <div id="mh-scroll">
+
+    <!-- Tab 0: Cartões -->
+    <div class="mh-pane on" id="mhp-0" role="tabpanel">
+      <div class="card-item">
+        <div class="card-name">Bradesco Aeternum Visa Infinite</div>
+        <div class="card-bank">Bradesco · Tier Black</div>
+        <div class="card-stats">
+          <div class="cstat"><div class="cstat-v">2,8 pts</div><div class="cstat-l">por R$1</div></div>
+          <div class="cstat"><div class="cstat-v">R$1.490</div><div class="cstat-l">Anuidade</div></div>
+          <div class="cstat"><div class="cstat-v">30k pts</div><div class="cstat-l">Boas-vindas</div></div>
+        </div>
+        <div class="card-desc">Melhor pontuação do mercado. LoungeKey ilimitado, seguro viagem, concierge 24h. Transfere para Smiles, TudoAzul e Latam Pass.</div>
+      </div>
+      <div class="card-item">
+        <div class="card-name">Itaú Personnalité Visa Infinite</div>
+        <div class="card-bank">Itaú · Tier Infinite</div>
+        <div class="card-stats">
+          <div class="cstat"><div class="cstat-v">2,4 pts</div><div class="cstat-l">internac.</div></div>
+          <div class="cstat"><div class="cstat-v">R$1.200</div><div class="cstat-l">Anuidade</div></div>
+          <div class="cstat"><div class="cstat-v">Ilimit.</div><div class="cstat-l">LoungeKey</div></div>
+        </div>
+        <div class="card-desc">Forte em gastos internacionais. Parceiro direto Smiles e TudoAzul. Ideal para quem viaja com frequência.</div>
+      </div>
+      <div class="card-item">
+        <div class="card-name">XP Visa Infinite</div>
+        <div class="card-bank">XP · Tier Infinite</div>
+        <div class="card-stats">
+          <div class="cstat"><div class="cstat-v">2,5 pts</div><div class="cstat-l">por R$1</div></div>
+          <div class="cstat"><div class="cstat-v">Isenta*</div><div class="cstat-l">Anuidade</div></div>
+          <div class="cstat"><div class="cstat-v">Livre</div><div class="cstat-l">Conversão</div></div>
+        </div>
+        <div class="card-desc">*Isenta com R$5k/mês. Conversão livre para Smiles, TudoAzul e Livelo.</div>
+      </div>
+      <div class="card-item">
+        <div class="card-name">Nubank Ultravioleta</div>
+        <div class="card-bank">Nubank · Premium</div>
+        <div class="card-stats">
+          <div class="cstat"><div class="cstat-v">1 pt</div><div class="cstat-l">por R$1</div></div>
+          <div class="cstat"><div class="cstat-v">Isenta*</div><div class="cstat-l">Anuidade</div></div>
+          <div class="cstat"><div class="cstat-v">1:1</div><div class="cstat-l">Para Smiles</div></div>
+        </div>
+        <div class="card-desc">*Isenta com R$5k/mês. Transferência 1:1 para Smiles sem taxas. Ótima entrada no mundo das milhas.</div>
+      </div>
+      <div class="card-item">
+        <div class="card-name">C6 Carbon Mastercard Black</div>
+        <div class="card-bank">C6 Bank · Black</div>
+        <div class="card-stats">
+          <div class="cstat"><div class="cstat-v">2 pts</div><div class="cstat-l">por R$1</div></div>
+          <div class="cstat"><div class="cstat-v">Revert.</div><div class="cstat-l">Anuidade</div></div>
+          <div class="cstat"><div class="cstat-v">Melia</div><div class="cstat-l">Parceiro</div></div>
+        </div>
+        <div class="card-desc">Anuidade revertida em milhas. Parceria com Melia Hotels. Sem limite de pontos.</div>
+      </div>
+    </div>
+
+    <!-- Tab 1: Estratégias -->
+    <div class="mh-pane" id="mhp-1" role="tabpanel">
+      <div class="strat-item"><div class="strat-title"><span class="strat-ico">🔄</span>Transferências com Bônus</div><div class="strat-body"><b>Livelo → Smiles</b> chega a 80% de bônus em Black Friday. Assine alertas no MaxMilhas e Melhores Destinos.</div></div>
+      <div class="strat-item"><div class="strat-title"><span class="strat-ico">🏪</span>Portais de Shopping</div><div class="strat-body">Smiles Store, TudoAzul e Livelo Mall oferecem <b>4–20 pts por R$1</b> em compras online. Verifique antes de qualquer compra.</div></div>
+      <div class="strat-item"><div class="strat-title"><span class="strat-ico">📊</span>Concentração de Gastos</div><div class="strat-body">Coloque <b>todas as contas fixas</b> no cartão premium: IPTU, IPVA, luz, internet, seguro. Um cartão 2,5pts/R$1 bate 5 cartões separados.</div></div>
+      <div class="strat-item"><div class="strat-title"><span class="strat-ico">🌍</span>Gastos Internacionais</div><div class="strat-body">Cartões com bônus em dólar têm rendimento 2–3x maior. Use <b>Itaú Personnalité</b> ou <b>Bradesco Aeternum</b> fora do Brasil.</div></div>
+      <div class="strat-item"><div class="strat-title"><span class="strat-ico">💡</span>CPM Ideal</div><div class="strat-body">Custo por Milha abaixo de <b>R$0,03</b> é excelente. Promoções de compra de milhas (40–60% off) podem valer muito.</div></div>
+      <div class="strat-item"><div class="strat-title"><span class="strat-ico">⏰</span>Controle de Validade</div><div class="strat-body">Milhas expiram em 18–36 meses. <b>Qualquer movimentação renova o prazo</b>. Configure alertas 90 dias antes do vencimento.</div></div>
+    </div>
+
+    <!-- Tab 2: Resgates -->
+    <div class="mh-pane" id="mhp-2" role="tabpanel">
+      <div class="redeem-header">Exemplos Reais · Smiles · Ida e Volta · Econômica</div>
+      <div class="redeem-row"><span class="redeem-flag">🇦🇷</span><div class="redeem-info"><div class="redeem-dest">Buenos Aires</div><div class="redeem-route">GRU → EZE</div></div><div class="redeem-miles"><div class="redeem-val">8k</div><div class="redeem-class">Milhas</div><div class="redeem-brl">vs R$800–2.400</div></div></div>
+      <div class="redeem-row"><span class="redeem-flag">🇨🇱</span><div class="redeem-info"><div class="redeem-dest">Santiago</div><div class="redeem-route">GRU → SCL</div></div><div class="redeem-miles"><div class="redeem-val">12k</div><div class="redeem-class">Milhas</div><div class="redeem-brl">vs R$1.000–3.000</div></div></div>
+      <div class="redeem-row"><span class="redeem-flag">🇵🇪</span><div class="redeem-info"><div class="redeem-dest">Lima</div><div class="redeem-route">GRU → LIM</div></div><div class="redeem-miles"><div class="redeem-val">18k</div><div class="redeem-class">Milhas</div><div class="redeem-brl">vs R$1.500–4.000</div></div></div>
+      <div class="redeem-row"><span class="redeem-flag">🇺🇸</span><div class="redeem-info"><div class="redeem-dest">Miami / Nova York</div><div class="redeem-route">GRU → MIA/JFK</div></div><div class="redeem-miles"><div class="redeem-val">35k</div><div class="redeem-class">Milhas</div><div class="redeem-brl">vs R$3.500–9.000</div></div></div>
+      <div class="redeem-row"><span class="redeem-flag">🇫🇷</span><div class="redeem-info"><div class="redeem-dest">Paris</div><div class="redeem-route">GRU → CDG</div></div><div class="redeem-miles"><div class="redeem-val">40k</div><div class="redeem-class">Milhas</div><div class="redeem-brl">vs R$4.500–12.000</div></div></div>
+      <div class="redeem-row"><span class="redeem-flag">🇯🇵</span><div class="redeem-info"><div class="redeem-dest">Tokyo</div><div class="redeem-route">GRU → NRT</div></div><div class="redeem-miles"><div class="redeem-val">52k</div><div class="redeem-class">Milhas</div><div class="redeem-brl">vs R$5.500–14.000</div></div></div>
+      <div class="redeem-row"><span class="redeem-flag">🇦🇺</span><div class="redeem-info"><div class="redeem-dest">Sydney</div><div class="redeem-route">GRU → SYD</div></div><div class="redeem-miles"><div class="redeem-val">66k</div><div class="redeem-class">Milhas</div><div class="redeem-brl">vs R$7.000–18.000</div></div></div>
+      <div class="redeem-tip"><b>Dica:</b> Upgrade para Executiva usa ~2x as milhas mas entrega um voo de R$15.000–25.000. O melhor custo-benefício das milhas.</div>
+    </div>
+
+    <!-- Tab 3: Glossário -->
+    <div class="mh-pane" id="mhp-3" role="tabpanel">
+      <div class="glossary-row"><span class="gl-term">Milha / Ponto</span><span class="gl-def">Unidade dos programas. 1 milha ≠ 1 ponto — a conversão varia.</span></div>
+      <div class="glossary-row"><span class="gl-term">Voo-prêmio</span><span class="gl-def">Passagem emitida com milhas, sem custo em dinheiro além das taxas.</span></div>
+      <div class="glossary-row"><span class="gl-term">Upgrade</span><span class="gl-def">Econômica → Executiva usando milhas. O melhor custo-benefício.</span></div>
+      <div class="glossary-row"><span class="gl-term">CPM</span><span class="gl-def">Custo por Milha. Bom: abaixo de R$0,03.</span></div>
+      <div class="glossary-row"><span class="gl-term">Smiles</span><span class="gl-def">Programa da Gol. Parcerias com 15+ bancos.</span></div>
+      <div class="glossary-row"><span class="gl-term">TudoAzul</span><span class="gl-def">Programa da Azul. Forte em domésticos e United.</span></div>
+      <div class="glossary-row"><span class="gl-term">Latam Pass</span><span class="gl-def">Programa da Latam. Aliança oneworld.</span></div>
+      <div class="glossary-row"><span class="gl-term">Livelo</span><span class="gl-def">Hub de pontos BB + Bradesco. Transfere para os 3 programas.</span></div>
+      <div class="glossary-row"><span class="gl-term">LoungeKey</span><span class="gl-def">Acesso a salas VIP. Cartões Infinite geralmente incluem.</span></div>
+      <div class="glossary-row"><span class="gl-term">Expiração</span><span class="gl-def">Milhas vencem em 18–36 meses. Qualquer movimentação renova.</span></div>
+      <div class="glossary-row"><span class="gl-term">Bônus Transf.</span><span class="gl-def">% extra ao transferir entre programas em campanhas (30–100%).</span></div>
+      <div class="glossary-row"><span class="gl-term">Classe J / C</span><span class="gl-def">Código de Executiva em reservas de milhas.</span></div>
+    </div>
+
+  </div>
+</aside>
+
+<!-- ══ LEGEND ════════════════════════════════════════════════ -->
+<nav id="legend" aria-label="Continentes">
+  <div class="leg" data-zoom="EU" tabindex="0"><div class="ldot" style="background:var(--eu)"></div><span class="ltx">Europa</span></div>
+  <div class="leg" data-zoom="NA" tabindex="0"><div class="ldot" style="background:var(--na)"></div><span class="ltx">América do Norte</span></div>
+  <div class="leg" data-zoom="SA" tabindex="0"><div class="ldot" style="background:var(--sa)"></div><span class="ltx">América do Sul</span></div>
+  <div class="leg" data-zoom="AF" tabindex="0"><div class="ldot" style="background:var(--af)"></div><span class="ltx">África</span></div>
+  <div class="leg" data-zoom="AS" tabindex="0"><div class="ldot" style="background:var(--as)"></div><span class="ltx">Ásia</span></div>
+  <div class="leg" data-zoom="OC" tabindex="0"><div class="ldot" style="background:var(--oc)"></div><span class="ltx">Oceania</span></div>
+</nav>
+
+<!-- ══ COUNTRY PANEL ═════════════════════════════════════════ -->
+<aside id="panel" aria-label="Informações do país">
+  <div id="p-bar">
+    <button id="p-x" aria-label="Fechar painel">✕</button>
+    <div id="p-path">
+      <span class="pp-btn" id="pp-home">Mundo</span>
+      <span class="pp-sep" id="pp-s1" style="display:none">›</span>
+      <span class="pp-btn" id="pp-cont" style="display:none"></span>
+      <span class="pp-sep" id="pp-s2" style="display:none">›</span>
+      <span class="pp-btn pp-cur" id="pp-ctry" style="display:none"></span>
+    </div>
+    <button id="visited-btn" aria-label="Marcar como visitado">☐ Visitado</button>
+  </div>
+  <div id="p-tabs" role="tablist">
+    <div class="pt on" role="tab" data-tab="0">📍 Check-in</div>
+    <div class="pt" role="tab" data-tab="1">🛂 Burocracia</div>
+    <div class="pt" role="tab" data-tab="2">🎭 Cultura</div>
+    <div class="pt" role="tab" data-tab="3">✈️ Voos</div>
+    <div class="pt" role="tab" data-tab="4">🎒 Checklist</div>
+  </div>
+  <div id="p-scroll">
+
+    <!-- Pane 0: Check-in -->
+    <div class="pane on" id="pane-0" role="tabpanel">
+      <div class="polaroid-gallery" id="pol-gallery"></div>
+      <div class="ctry-head">
+        <div id="p-flag" class="ctry-flag"></div>
+        <div id="p-name" class="ctry-name">—</div>
+        <div id="p-region" class="ctry-region">—</div>
+      </div>
+      <div class="tab-body">
+        <div class="ess-grid" id="ess-grid"></div>
+        <div class="sec-lbl">Melhor época para visitar</div>
+        <div class="months-row" id="months-row"></div>
+        <div class="mo-leg">
+          <div class="mol-i"><div class="mol-d" style="background:#32a870"></div>Ótimo</div>
+          <div class="mol-i"><div class="mol-d" style="background:#c8a850"></div>Bom</div>
+          <div class="mol-i"><div class="mol-d" style="background:#333"></div>Evitar</div>
+        </div>
+        <div class="best-q" id="best-q"></div>
+        <div id="terr-box" class="terr-box" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- Pane 1: Burocracia -->
+    <div class="pane" id="pane-1" role="tabpanel">
+      <div class="tab-body" id="buro-body"></div>
+    </div>
+
+    <!-- Pane 2: Cultura -->
+    <div class="pane" id="pane-2" role="tabpanel">
+      <div class="tab-body">
+        <div class="sec-lbl">O prato que define a nação</div>
+        <div id="food-list"></div>
+        <div class="sec-lbl" style="margin-top:14px">O que nunca fazer</div>
+        <div id="etiq-list"></div>
+        <div class="sec-lbl" style="margin-top:12px">A vibe do lugar</div>
+        <div class="vibe-wrap" id="vibe-wrap"></div>
+      </div>
+    </div>
+
+    <!-- Pane 3: Voos -->
+    <div class="pane" id="pane-3" role="tabpanel">
+      <div class="tab-body">
+        <div class="route-vis">
+          <div class="route-row">
+            <div class="route-ap"><div class="route-code" id="rt-oc">GRU</div><div class="route-city" id="rt-ocy">São Paulo</div></div>
+            <div class="route-mid"><div class="route-dash"></div><div class="route-plane">✈</div><div class="route-dash"></div><div class="route-hrs" id="rt-hrs">—</div></div>
+            <div class="route-ap"><div class="route-code" id="rt-dc">—</div><div class="route-city" id="rt-dcy">—</div></div>
+          </div>
+          <div class="origin-wrap">
+            <input id="origin-inp" type="text" placeholder="Origem (IATA, ex: GRU)" value="GRU" maxlength="4">
+            <button id="calc-btn">Calcular</button>
+          </div>
+          <div id="route-result"></div>
+        </div>
+        <div class="price-2" id="price-2"></div>
+        <div class="sec-lbl">Por programa de milhas</div>
+        <div id="prog-rows"></div>
+        <div class="miles-diff" id="miles-diff"></div>
+        <div class="sec-lbl" style="margin-top:12px">Custo estimado da viagem</div>
+        <div class="cost-t" id="cost-t"></div>
+        <div id="tip-box-3"></div>
+      </div>
+    </div>
+
+    <!-- Pane 4: Checklist -->
+    <div class="pane" id="pane-4" role="tabpanel">
+      <div class="tab-body">
+        <div class="chk-tip" id="chk-tip"></div>
+        <div id="chk-lists"></div>
+        <div class="chk-btns">
+          <button class="chk-btn-act" id="chk-all-on">✓ Marcar tudo</button>
+          <button class="chk-btn-act" id="chk-all-off">✗ Limpar</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</aside>
+
+<!-- ══ TOOLTIP + HINT ════════════════════════════════════════ -->
+<div id="tt" role="tooltip" aria-live="polite"></div>
+<div id="hint" aria-hidden="true">Clique num continente · depois num país para explorar</div>
+
+<script src="script.js" defer></script>
+</body>
+</html>'''
+
+with open('/mnt/user-data/outputs/index.html', 'w') as f:
+    f.write(index_html)
+print(f"index.html: {len(index_html)} bytes")
+PYEOF
+python3 /tmp/write_index.py
